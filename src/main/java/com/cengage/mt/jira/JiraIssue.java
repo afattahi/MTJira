@@ -4,7 +4,6 @@ import java.util.Formatter;
 
 import org.codehaus.jettison.json.JSONObject;
 
-import com.cengage.mt.jira.CustomFieldOption;
 import com.atlassian.jira.rest.client.domain.Issue;
 
 public class JiraIssue {
