@@ -5,6 +5,9 @@
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>mtjira</name>
+  <properties>
+  	<deploy.dir>/Users/afattahi/Programs/MTJira/program</deploy.dir>
+  </properties>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
@@ -24,11 +27,95 @@
        <version>0.8.2</version>
 	</dependency>
     <dependency>
-	<groupId>net.sourceforge.jexcelapi</groupId>
-	<artifactId>jxl</artifactId>
-	<version>2.6.10</version>
-</dependency>
-            
+		<groupId>net.sourceforge.jexcelapi</groupId>
+		<artifactId>jxl</artifactId>
+		<version>2.6.10</version>
+	</dependency>
+	<dependency>
+		<groupId>com.atlassian.jira</groupId>
+		<artifactId>jira-rest-java-client</artifactId>
+		<version>0.6-m8</version>
+	</dependency>        
   </dependencies>
   <artifactId>mtjira</artifactId>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <archive>
+            <index>true</index>
+             <manifest>
+              <addClasspath>true</addClasspath>
+            </manifest>   
+            <manifestEntries>
+              <mode>development</mode>
+              <Main-Class>com.cengage.mt.jira.App</Main-Class>
+              <url>${project.url}</url>
+              <key>value</key>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+       <plugin>
+            <groupId>org.codehaus.groovy.maven</groupId>
+            <artifactId>gmaven-plugin</artifactId>
+            <executions>
+                <execution>
+                    <phase>generate-resources</phase>
+                    <goals>
+                        <goal>execute</goal>
+                    </goals>
+                    <configuration>
+                        <source>
+                            def file = new File(project.build.directory, ".classpath")
+                            file.write(project.runtimeClasspathElements.join(File.pathSeparator))
+                        </source>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+   
+	    <plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-dependency-plugin</artifactId>
+	    <executions>
+	        <execution>
+	            <id>copy-dependencies</id>
+	            <phase>package</phase>
+	            <goals>
+	                <goal>copy-dependencies</goal>
+	            </goals>
+	            <configuration>
+	                <includeScope>runtime</includeScope>
+	                <outputDirectory>
+	                    ${project.build.directory}/classes
+	                </outputDirectory>
+	             </configuration>
+	        </execution>
+	    </executions>
+		</plugin>
+		  <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+           <phase>package</phase>
+            <configuration>
+              <tasks>
+			    <echo>"${project.build.directory}/${project.build.finalName}</echo>
+			    <echo>${deploy.dir}</echo>
+             	<copy file="${project.build.directory}/${project.build.finalName}.jar" todir="${deploy.dir}"/>
+
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin> 
+ </plugins>
+  </build>
 </project>

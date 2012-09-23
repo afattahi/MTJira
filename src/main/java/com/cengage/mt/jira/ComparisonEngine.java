@@ -11,22 +11,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Release {
-	private static final String BASE_DIR = "/Users/afattahi/Desktop/";
+public class ComparisonEngine {
 
-	private List<JiraIssue> baselineIssues;
+//	private List<JiraIssue> snapshotIssues;
+	private IssuesAnalysis baselineIssuesAnalysis;
+	private IssuesAnalysis snapshotIssuesAnalysis;
 	
 	private List<JiraIssue> removedIssues;
-	private List<JiraIssue> noEstimateIssues;
 	private List<JiraIssue> addedIssues;
 	private Map<JiraIssue, JiraIssue> modifiedIssues;
-	private List<JiraIssue> snapshotIssues;
+	
+
 	private final String marker = "=============================================================\n";
 	private StringBuilder report;
+
 	
-	public Release() {
+	public ComparisonEngine(List<JiraIssue> baseline, List<JiraIssue> snapshot) {
 		
-		baselineIssues = new ArrayList<JiraIssue>();
+	//	baselineIssues = new ArrayList<JiraIssue>();
+		
+		baselineIssuesAnalysis = new IssuesAnalysis(baseline);
+		
+		snapshotIssuesAnalysis = new IssuesAnalysis(snapshot);
+		
+		init();
+		
+	}
+	
+	public void init () {
+		
 		addedIssues = new ArrayList<JiraIssue>();
 		removedIssues = new ArrayList<JiraIssue>();
 		modifiedIssues = new Hashtable<JiraIssue, JiraIssue>();
@@ -34,10 +47,10 @@ public class Release {
 		
 	}
 	
-	public void createOutFile () {
+	public void createOutFile (String reportFile) {
 		 try{
 			  // Create file 
-			  FileWriter fstream = new FileWriter(BASE_DIR+"ReleaseReport.txt");
+			  FileWriter fstream = new FileWriter(reportFile);
 			  BufferedWriter out = new BufferedWriter(fstream);
 			  out.write(report.toString());
 			  //Close the output stream
@@ -47,15 +60,6 @@ public class Release {
 			  }
 	 }
 	
-
-	public void setBaselineIssues(List<JiraIssue> issues) {
-		
-		this.baselineIssues = issues;
-	}
-	
-	public void setSnapshotIssues(List<JiraIssue> issues) {
-		this.snapshotIssues = issues;
-	}
 
 	private Double totalModifiedPoints() {
 		
@@ -101,16 +105,10 @@ public class Release {
 		return this.addedIssues.size();
 	}
 
-	private void calculateBaseLineNoEstimateIssues (List<JiraIssue> jiraIssues) {
-		for ( JiraIssue issue: jiraIssues) {
-			if (issue.getPoints().equals(0.0) || issue.getPoints().equals(1.399)) {
-				noEstimateIssues.add(issue);
-			}
-		}
-	}
+
 	private void calculateModifiedIssues(List<JiraIssue> jiraIssues) {
 		
-		for (JiraIssue issue :this.baselineIssues) {
+		for (JiraIssue issue :this.baselineIssuesAnalysis.getIssues()) {
 			for (JiraIssue otherIssue : jiraIssues) {
 				if (issue.equals(otherIssue)) {
 					if (! issue.getPoints().equals( otherIssue.getPoints())) {
@@ -130,7 +128,7 @@ public class Release {
 	private void calculateAddedCards(List<JiraIssue> jiraIssues) {
 		Set<JiraIssue> addedIssues = new HashSet<JiraIssue>(jiraIssues);
 		
-		addedIssues.removeAll(this.baselineIssues);
+		addedIssues.removeAll(this.baselineIssuesAnalysis.getIssues());
 		
 		removedIssues.removeAll(jiraIssues);
 		
@@ -145,7 +143,7 @@ public class Release {
 
 	private void calculateRemovedIssues(List<JiraIssue> jiraIssues) {
 		Iterator i;
-		Set<JiraIssue> removedIssues = new HashSet<JiraIssue>(this.baselineIssues);
+		Set<JiraIssue> removedIssues = new HashSet<JiraIssue>(this.baselineIssuesAnalysis.getIssues());
 		
 		removedIssues.removeAll(jiraIssues);
 		
@@ -161,14 +159,14 @@ public class Release {
 	public void comparison() {
 		
 		
-		calculateAddedCards(snapshotIssues);
+		calculateAddedCards(snapshotIssuesAnalysis.getIssues());
 		
-		calculateRemovedIssues(snapshotIssues);
+		calculateRemovedIssues(snapshotIssuesAnalysis.getIssues());
 		
-		calculateModifiedIssues(snapshotIssues);
+		calculateModifiedIssues(snapshotIssuesAnalysis.getIssues());
 		
 		generateReport();
-		createOutFile ();
+
 	}
 	
 	
@@ -201,6 +199,8 @@ public class Release {
 		report.append("\tDETAILS\n");
 		report.append(marker);
 		report.append("\n");
+		report.append("++++ NOT ESTIMATED CARDS ++++\n");
+		printIssues(snapshotIssuesAnalysis.getNoEstimateIssues());
 		report.append("++++ ADDED CARDS ++++\n");
 		printIssues (addedIssues);
 		report.append("\n");
@@ -235,49 +235,28 @@ public class Release {
 
 	private void gernerateNetChange() {
 		
-		Integer baselineTotalIssues = getBaseLineTotalIssues();
-		Double baselineTotalPoints = getBaselineTotalPoints();
-		Integer snapshotTotalIssues = getSnapshotTotalIssues();
-		Double snapshotTotalPoints =  getSnapshotTotalPoints();
+		Integer baselineTotalIssues = baselineIssuesAnalysis.getTotalIssues();
+		Double baselineTotalPoints = baselineIssuesAnalysis.getTotalPoints();
+		Integer snapshotTotalIssues = snapshotIssuesAnalysis.getTotalIssues();
+		Double snapshotTotalPoints =  snapshotIssuesAnalysis.getTotalPoints();
+		Integer baselineDoneTotalIssues = baselineIssuesAnalysis.getDoneIssueCount();
+		Double baselineDoneTotalPoints = baselineIssuesAnalysis.getDonePoints();
+		Integer snapshotDoneTotalIssues = snapshotIssuesAnalysis.getDoneIssueCount();
+		Double snapshotDoneTotalPoints = snapshotIssuesAnalysis.getDonePoints();
+	
 		Formatter f = new Formatter();
 		f.format("%20s\t Baseline \t Snapshot \t Change\n","Line");
 		f.format("%20s\t %d \t\t %d \t\t %+d\n","Total Issues:",baselineTotalIssues,snapshotTotalIssues,snapshotTotalIssues-baselineTotalIssues);
 		f.format("%20s\t %5.2f \t\t %5.2f \t\t %+5.2f\n","Total Points:",baselineTotalPoints,snapshotTotalPoints,snapshotTotalPoints-baselineTotalPoints);
+		f.format("%20s\t %d \t\t %d \t\t %+d\n","Done Issues:",baselineDoneTotalIssues,snapshotDoneTotalIssues,snapshotDoneTotalIssues-baselineDoneTotalIssues);
+		f.format("%20s\t %5.2f \t\t %5.2f \t\t %+5.2f\n","Done Points:", baselineDoneTotalPoints,snapshotDoneTotalPoints,snapshotDoneTotalPoints- baselineDoneTotalPoints);
 		report.append(f);
 		
 	}
 
-	private Double getSnapshotTotalPoints() {
-		
-		Double totalPoints = 0.0;
-		for (JiraIssue i:snapshotIssues) {
-			totalPoints += i.getPoints();
-		}
-		return totalPoints ; 
-		
-	}
-
-	private Integer getSnapshotTotalIssues() {
-	
-		return snapshotIssues.size();
-	}
-
-	private Double getBaselineTotalPoints() {
-		
-		Double totalPoints = 0.0;
-		for (JiraIssue i:baselineIssues) {
-			totalPoints += i.getPoints();
-		}
-		return totalPoints ; 
-		
-	}
-
-	private Integer getBaseLineTotalIssues() {
-
-		return baselineIssues.size();
-	}
 
 	private void generateLineSummary(String type, Integer issues, Double points) {
+	
 		//System.out.printf("** %s\t ISSUES ** COUNT: %d ** POINTS: %+5.2f **\n",type, issues,points);
 	}
 

@@ -2,7 +2,14 @@ package com.cengage.mt.jira;
 
 import java.util.Formatter;
 
+import org.codehaus.jettison.json.JSONObject;
+
+import com.cengage.mt.jira.CustomFieldOption;
+import com.atlassian.jira.rest.client.domain.Issue;
+
 public class JiraIssue {
+	
+	private Issue i;
 	
 	private String key;
 	private String summary;
@@ -10,6 +17,37 @@ public class JiraIssue {
 	private String issueType;
 	private String status;
 	private String team;
+
+	public static final String STORY_POINTS = "customfield_10792";
+	public static final String SCRUM_TEAM = "customfield_11261"; 
+	
+	public JiraIssue (String key,String summary, Double points) {
+		this.key = key;
+		this.summary = summary;
+		this.points = points;
+		
+	}
+	public JiraIssue (Issue i)  {
+		
+		try {
+			this.i = i;
+			this.key = i.getKey();
+			this.summary = i.getSummary();
+			this.points = (Double) i.getField(STORY_POINTS).getValue();
+			this.issueType = i.getIssueType().getName();
+			this.status = i.getStatus().getName();
+			//System.out.println("TEAM " + i.getField(SCRUM_TEAM).getType()+i.getField(SCRUM_TEAM).getValue());
+			JSONObject o = (JSONObject) i.getField(SCRUM_TEAM).getValue();
+			if (o!=null) {
+			this.team = o.getString("value");
+			}
+			
+		} catch ( Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+	}
+	
 	public String getIssueType() {
 		return issueType;
 	}
@@ -65,12 +103,6 @@ public class JiraIssue {
 		return true;
 	}
 
-	public JiraIssue (String key,String summary, Double points) {
-		this.key = key;
-		this.summary = summary;
-		this.points = points;
-		
-	}
 	public String getKey() {
 		return key;
 	}
@@ -97,7 +129,7 @@ public class JiraIssue {
 	@Override
 	public String toString() {
 		Formatter f = new Formatter();
-		return f.format("%10s %-18s %10.2f %s",key ,issueType,  points, summary).toString() ;
+		return f.format("%-10s %-18s %-12s %10.2f %s",key ,issueType, status, points, summary).toString() ;
 	}
 	
 	
