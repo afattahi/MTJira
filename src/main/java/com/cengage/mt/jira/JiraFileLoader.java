@@ -58,11 +58,11 @@ public class JiraFileLoader {
     }
     
     public String getSnapshotFileName (String label) {
-    	return AppProperties.getSnapshotDir()+File.separator+SNAPSHOT_NAME_BASE+"_"+label+"_"+getFileTimestamp()+EXCEL_EXT;
+    	return AppProperties.getSnapshotDir()+File.separator+SNAPSHOT_NAME_BASE+label+"_"+getFileTimestamp()+EXCEL_EXT;
     }
     
     public String getReport1FileName( String label) {
-      	return AppProperties.getOutDir()+File.separator+REPORT1_BASE+"_"+label+"_"+getFileTimestamp()+TXT_EXT; 
+      	return AppProperties.getOutDir()+File.separator+REPORT1_BASE+label+"_"+getFileTimestamp()+TXT_EXT; 
     }
     
     public String getbaselineFileName(String label) {

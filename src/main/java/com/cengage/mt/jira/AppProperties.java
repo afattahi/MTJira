@@ -19,7 +19,7 @@ public class AppProperties {
 	
 	public static String getSnapshotDir() {
 		
-		return appProperties.getProperty("dir.snapshot");
+		return appProperties.getProperty("dir.snapshots");
 	}
 
 }
