@@ -128,7 +128,7 @@ public class JiraIssue {
 	@Override
 	public String toString() {
 		Formatter f = new Formatter();
-		return f.format("%-10s %-18s %-12s %10.2f %s",key ,issueType, status, points, summary).toString() ;
+		return f.format("%-10s %-20s %-18s %-12s %10.2f %s",key ,team, issueType, status, points, summary).toString() ;
 	}
 	
 	

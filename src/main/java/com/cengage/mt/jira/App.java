@@ -2,10 +2,15 @@ package com.cengage.mt.jira;
 
 import java.io.BufferedReader;
 import java.io.Console;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+import java.util.ResourceBundle;
 
 /**
  * Hello world!
@@ -18,18 +23,21 @@ public class App
     public static void main( String[] args ) 
     {
     	try {
-        
+        //    System.out.println(App.class.getProtectionDomain().getCodeSource().getLocation());
+    	//	ResourceBundle.getBundle("env");
+    		
     	String action = args[0];
    
         
         App app = new App();
+        app.loadProperties();
         
         if (action.equalsIgnoreCase("compare")) {
         	
          	String baselineFile = args[1];
             String snapshotFile = args[2];
-            String reportFile = args[3];
-        	app.generateComparison(baselineFile, snapshotFile, reportFile);
+            String label = args[3];
+        	app.generateComparison(baselineFile, snapshotFile, label);
         	
         } else if (action.equalsIgnoreCase("generate-snapshot")) {
         	
@@ -51,14 +59,29 @@ public class App
 
     }
     
-    public void generateComparison(String baselineFile, String snapshotFile, String reportFile) {
+    public void loadProperties() throws Exception {
+     	
+    	String externalFileName = System.getProperty("app.properties");
+    	System.out.println(externalFileName);
+    	InputStream in = new FileInputStream(new File(externalFileName));
+    	
+    	Properties result = null;
+    	
+        result = new Properties ();
+        result.load (in); // Can throw IOException
+        System.out.println(result.toString());
+        AppProperties.setProperties(result);
+   
+    }
+    
+    public void generateComparison(String baselineFile, String snapshotFile, String label) {
     	
         
         JiraFileLoader loader = new JiraFileLoader();
-        ComparisonEngine release = new ComparisonEngine(loader.load(baselineFile),loader.load(snapshotFile));
+        ComparisonEngine engine = new ComparisonEngine(loader.load(baselineFile),loader.load(snapshotFile));
 
-			release.comparison();
-			release.createOutFile(reportFile);
+			engine.comparison();
+			engine.createOutFile(loader.getReport1FileName(label));
     	
     }
     
