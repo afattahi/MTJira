@@ -45,13 +45,23 @@ public class App
         	 System.out.println("Enter label for the snapshot: ");
         	String label = br.readLine();
         	System.out.println("nEnter you jql on one line:");
-        	String jql = br.readLine();
+        	String jql = br.readLine();	
         	
         	app.generateSnapshot(label, jql);
         	
-        } else 
+        } else if (action.equalsIgnoreCase("fy13")) {
+        	/* BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        	 System.out.println("Enter label for the snapshot: ");
+        	String label = br.readLine();
+        	System.out.println("nEnter you jql on one line:");
+        	String jql = br.readLine();	
+        	*/
+        	app.fy13Report("fy13", "filter=25483");
+        	
+        } else {
         	System.out.println("Unknown action... "+ action);
         	System.exit(-1);
+        }	
         
     	} catch (Exception e) {
     		e.printStackTrace();
@@ -96,6 +106,20 @@ public class App
 		
 		loader.generateExcelSheet(loader.getSnapshotFileName(label),jiraIssues,jql);
     	
+    }
+    
+    public void fy13Report (String label, String jql) {
+    	
+		List<JiraIssue> jiraIssues = new ArrayList<JiraIssue>();		
+		MTJiraClient client = new MTJiraClient();	
+		jiraIssues =  client.retrieveJiraIssues(jql);
+		
+		FY13EpicsManager manager = new FY13EpicsManager();
+		System.out.println("Aggragating data");
+		manager.aggregateData(jiraIssues);
+		System.out.println("Printing...");
+		manager.printEpics();
+    
     }
 
 }
