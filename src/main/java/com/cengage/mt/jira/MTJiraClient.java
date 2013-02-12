@@ -13,9 +13,9 @@ import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientFactor
 
 public class MTJiraClient {
 	
-	private final String USER_NAME = "anas.fattahi";
-	private final String PASSWORD = "Afattahi";
-	private final String JIRA_URL = "http://jira.cengage.com";
+	private final String USER_NAME = "********";
+	private final String PASSWORD = "******";
+	private final String JIRA_URL = "********";
 	private static final  int  MAX_ISSUES= 50;
 	
 	
