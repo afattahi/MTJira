@@ -42,9 +42,9 @@ public class FY13EpicsManager {
 	
 	public void printEpics() {
 		System.out.println("Printing");
-		System.out.println("Key \t Epic Point \t Story Points \t Story Count \t Epic Label \t Epic Summary");
+		System.out.println("Key, Epic Point,Epic Adjusted Points, Story Points, Diff(story-epic) points, Story Count, Epic Label, Feature, Epic Summary");
 		for (Epic epic: epics.values()) {
-			System.out.printf("%10s, %5.2f, %5.2f, %5.2f, %5d, %50s, %s\n",epic.getKey(),epic.getEpicPoints(),epic.getStoryPoints(),epic.getStoryPoints()-epic.getEpicPoints(),epic.getIssueCount(),epic.getEpicLabel(),epic.getSummary());
+			System.out.printf("%10s, %5.2f, %5.2f, %5.2f, %5.2f, %5d, %50s,%s, %s\n",epic.getKey(),epic.getEpicPoints(), epic.getEpicAdjustedPoints(),epic.getStoryPoints(),(epic.getIssueCount()==0?epic.getEpicAdjustedPoints():(epic.getStoryPoints()-epic.getEpicAdjustedPoints())),epic.getIssueCount(),epic.getEpicLabel(),epic.getFeature(),epic.getSummary());
 		}
 	}
 	

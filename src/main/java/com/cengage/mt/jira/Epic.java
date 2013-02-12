@@ -45,6 +45,28 @@ public class Epic {
  		return (epic==null||epic.getPoints()==null?0.0:epic.getPoints());
  	}
  	
+ 	
+ 	public Double getEpicAdjustedPoints() {
+ 		
+ 		if (epic==null||epic.getPoints()==null) {
+ 			return 0.0;
+ 		} else if  (epic.getConfidenceFactor() == 0.0) {
+ 			return (epic.getPoints()*2.0 + epic.getPoints())/2;
+ 		} else if (epic.getConfidenceFactor() == 10.0 ||epic.getConfidenceFactor() == 9.0 ) {
+ 			return epic.getPoints();
+ 		} else if (epic.getConfidenceFactor() == 8.0 ||epic.getConfidenceFactor() == 7.0 
+ 					||epic.getConfidenceFactor() == 6.0 ||epic.getConfidenceFactor() == 5.0 ) {
+ 			return (epic.getPoints()*2.0 + epic.getPoints())/2;
+ 		} else if (epic.getConfidenceFactor() == 1.0 ||epic.getConfidenceFactor() == 2.0 
+					||epic.getConfidenceFactor() == 3.0 ||epic.getConfidenceFactor() == 4.0 ) {
+			return (epic.getPoints()*3.0 + epic.getPoints())/2;
+ 		} else {
+ 			return -999999999.99;
+ 		}
+
+ 	}
+ 	
+ 	
  	public Double getStoryPoints() {
  		Double points = 0.0;
  		for (JiraIssue i:issues.values()) {
@@ -54,6 +76,8 @@ public class Epic {
  		
  		return points;
  	}
+ 	
+ 
  	
 
  	public int getIssueCount() {

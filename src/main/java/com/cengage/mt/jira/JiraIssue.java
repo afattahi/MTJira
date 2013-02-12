@@ -21,11 +21,15 @@ public class JiraIssue {
 	private String team;
 	private List<String> features;
 	private List<String> epics;
+	private Double confidenceFactor;
+	private int rank;
 
 	public static final String STORY_POINTS = "customfield_10792";
 	public static final String SCRUM_TEAM = "customfield_11261"; 
 	public static final String EPIC = "customfield_10850"; 
 	public static final String FEATURE = "customfield_12545";
+	public static final String CONFIDENCE_FACTOR = "customfield_13532";
+	public static final String GLOBAL_RANK = "customfield_11630";
 
 	private static final String MULTIPLE_LABELS = "Multiple Labels in the field: "; 	
 	
@@ -38,6 +42,7 @@ public class JiraIssue {
 	public JiraIssue (Issue i)  {
 		
 		try {
+			
 			this.i = i;
 			this.key = i.getKey();
 			this.summary = i.getSummary();
@@ -46,7 +51,11 @@ public class JiraIssue {
 			this.status = i.getStatus().getName();
 			this.epics = new ArrayList<String>();
 			this.features = new ArrayList<String>();
+			//System.out.println("CONFIDENCE_FACTOR: "+ i.getField(CONFIDENCE_FACTOR).getValue());
+		//	System.out.println("Rank: "+ i.getField(GLOBAL_RANK).toString());
+			this.confidenceFactor = (Double) i.getField(CONFIDENCE_FACTOR).getValue();
 			//System.out.println("TEAM " + i.getField(SCRUM_TEAM).getType()+i.getField(SCRUM_TEAM).getValue());
+		//	this.rank = (Integer) i.getField(GLOBAL_RANK).getValue();
 			JSONObject o = (JSONObject) i.getField(SCRUM_TEAM).getValue();
 			
 			JSONArray jsonArray = (JSONArray) i.getField(EPIC).getValue();
@@ -77,6 +86,7 @@ public class JiraIssue {
 			}
 			
 		} catch ( Exception e) {
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 		
@@ -171,6 +181,12 @@ public class JiraIssue {
 
 	public String getEpic() {
 		return (epics.size()==0?" ":epics.get(0));
+	}
+	public Double getConfidenceFactor() {
+		return  (confidenceFactor==null?0.0:confidenceFactor);
+	}
+	public void setConfidenceFactor(Double confidenceFactor) {
+		this.confidenceFactor = confidenceFactor;
 	}
 		
 
